@@ -57,8 +57,6 @@ class TDPolicyPredictor(TDAlgorithmBase):
         #
         # self._v.set_value(x_cell_coord, y_cell_coord, new_v)
 
-        self._environment.reset(episode.state(0))
-
         for i in range(episode.number_of_steps()):
             if episode.state(i).is_terminal():
                 break
