@@ -57,8 +57,17 @@ class TDPolicyPredictor(TDAlgorithmBase):
         #
         # self._v.set_value(x_cell_coord, y_cell_coord, new_v)
 
-        # Example to show how to extract coordinates; this does not do anything useful
-        coords = episode.state(0).coords()
-        new_v = 0
-        self._v.set_value(coords[0], coords[1], new_v)
+        self._environment.reset(episode.state(0))
+
+        for i in range(episode.number_of_steps()):
+            if episode.state(i).is_terminal():
+                break
+
+            x, y = episode.state(i).coords()
+
+            A = self._pi.action(x, y)
+            self._environment.reset(episode.state(i))
+            S_prime, R, _, _, _ = self._environment.step(A)
+            sx, sy = S_prime.coords()
+            self._v.set_value(x, y, self._v.value(x, y) + self.alpha() * (R + self.gamma() * self._v.value(sx, sy) - self._v.value(x, y)))
 
