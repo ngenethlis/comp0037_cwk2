@@ -29,6 +29,8 @@ from p1.low_level_actions import LowLevelActionType
 from p1.low_level_policy_drawer import LowLevelPolicyDrawer
 from p1.low_level_policy import LowLevelPolicy
 
+FLOAT_EPSILON = 10e-8
+
 
 class WorkReturnValue(NamedTuple):
     on_value: float
@@ -92,6 +94,16 @@ def policy_to_numpy(policy: LowLevelPolicy) -> np.ndarray[int]:
 
 def matrix_difference_absolute(matrix_1: np.ndarray, matrix_2: np.ndarray) -> float:
     return np.linalg.norm(np.nan_to_num(matrix_1) - np.nan_to_num(matrix_2))
+
+
+def matrix_if_differ_difference_absolute(
+    matrix_1: np.ndarray, matrix_2: np.ndarray
+) -> float:
+    return np.sum(
+        np.vectorize(lambda x: int(abs(x) >= FLOAT_EPSILON))(
+            (np.nan_to_num(matrix_1) - np.nan_to_num(matrix_2))
+        )
+    )
 
 
 def work(args: tuple[bool, int]) -> WorkReturnValue:
@@ -173,8 +185,8 @@ def work(args: tuple[bool, int]) -> WorkReturnValue:
     return WorkReturnValue(
         matrix_difference_absolute(mcpp_values, pe_values),
         matrix_difference_absolute(mcop_values, pe_values),
-        matrix_difference_absolute(on_policy, ideal_policy),
-        matrix_difference_absolute(off_policy, ideal_policy),
+        matrix_if_differ_difference_absolute(on_policy, ideal_policy),
+        matrix_if_differ_difference_absolute(off_policy, ideal_policy),
         first_visit,
         episode_count,
     )
