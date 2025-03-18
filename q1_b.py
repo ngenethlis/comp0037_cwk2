@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-'''
+"""
 Created on 7 Mar 2023
 
 @author: steam
-'''
+"""
 
 import multiprocessing as mp
 import itertools
@@ -24,8 +24,10 @@ from p1.low_level_environment import LowLevelEnvironment
 from p1.low_level_actions import LowLevelActionType
 from p1.low_level_policy_drawer import LowLevelPolicyDrawer
 
+
 def matrix_difference_absolute(matrix_1: np.ndarray, matrix_2: np.ndarray) -> float:
     return np.linalg.norm(np.nan_to_num(matrix_1) - np.nan_to_num(matrix_2))
+
 
 def work(args: tuple[bool, int]) -> tuple[float, float, bool, int]:
     first_visit, episode_count = args
@@ -81,49 +83,74 @@ def work(args: tuple[bool, int]) -> tuple[float, float, bool, int]:
     # v_mcop.save_screenshot("q1_b_mc-off_pe.pdf")
     # v_mcpp.save_screenshot("q1_b_mc-on_pe.pdf")
 
-    mcpp_values = np.array([[mcpp.value_function().value(x, y)
-                             for x in range(env.map().width())]
-                            for y in range(env.map().height())])
-    mcop_values = np.array([[mcop.value_function().value(x, y)
-                             for x in range(env.map().width())]
-                            for y in range(env.map().height())])
-    pe_values = np.array([[pe.value_function().value(x, y)
-                           for x in range(env.map().width())]
-                          for y in range(env.map().height())])
-    return (matrix_difference_absolute(mcpp_values, pe_values),
-            matrix_difference_absolute(mcop_values, pe_values),
-            first_visit,
-            episode_count)
+    mcpp_values = np.array(
+        [
+            [mcpp.value_function().value(x, y) for x in range(env.map().width())]
+            for y in range(env.map().height())
+        ]
+    )
+    mcop_values = np.array(
+        [
+            [mcop.value_function().value(x, y) for x in range(env.map().width())]
+            for y in range(env.map().height())
+        ]
+    )
+    pe_values = np.array(
+        [
+            [pe.value_function().value(x, y) for x in range(env.map().width())]
+            for y in range(env.map().height())
+        ]
+    )
+    return (
+        matrix_difference_absolute(mcpp_values, pe_values),
+        matrix_difference_absolute(mcop_values, pe_values),
+        first_visit,
+        episode_count,
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     MAX_EPISODE_COUNT = 100
     with mp.Pool() as pool:
-        results = pool.map(work,
-                           itertools.product([True, False],
-                                             list(range(0, MAX_EPISODE_COUNT + 1))))
+        results = pool.map(
+            work,
+            itertools.product([True, False], list(range(0, MAX_EPISODE_COUNT + 1))),
+        )
 
-    ys_on_fv = [r[0]
-                for r in sorted([(result[0], result[3])
-                                 for result in results if result[2]],
-                                key=lambda t: t[1])]
-    ys_off_fv = [r[0]
-                 for r in sorted([(result[1], result[3])
-                                  for result in results if result[2]],
-                                 key=lambda t: t[1])]
-    ys_on_mv = [r[0]
-                for r in sorted([(result[0], result[3])
-                                 for result in results if not result[2]],
-                                key=lambda t: t[1])]
-    ys_off_mv = [r[0]
-                 for r in sorted([(result[1], result[3])
-                                  for result in results if not result[2]],
-                                 key=lambda t: t[1])]
+    ys_on_fv = [
+        r[0]
+        for r in sorted(
+            [(result[0], result[3]) for result in results if result[2]],
+            key=lambda t: t[1],
+        )
+    ]
+    ys_off_fv = [
+        r[0]
+        for r in sorted(
+            [(result[1], result[3]) for result in results if result[2]],
+            key=lambda t: t[1],
+        )
+    ]
+    ys_on_mv = [
+        r[0]
+        for r in sorted(
+            [(result[0], result[3]) for result in results if not result[2]],
+            key=lambda t: t[1],
+        )
+    ]
+    ys_off_mv = [
+        r[0]
+        for r in sorted(
+            [(result[1], result[3]) for result in results if not result[2]],
+            key=lambda t: t[1],
+        )
+    ]
 
     xs = list(range(0, MAX_EPISODE_COUNT + 1))
-    plt.plot(xs, ys_on_fv, color='red')
-    plt.plot(xs, ys_on_mv, color='purple')
+    plt.plot(xs, ys_on_fv, color="red")
+    plt.plot(xs, ys_on_mv, color="purple")
 
-    plt.plot(xs, ys_off_fv, color='blue')
-    plt.plot(xs, ys_off_mv, color='green')
+    plt.plot(xs, ys_off_fv, color="blue")
+    plt.plot(xs, ys_off_mv, color="green")
     plt.show()
     print(results)
