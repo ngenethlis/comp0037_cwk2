@@ -6,6 +6,9 @@ Created on 7 Mar 2023
 @author: steam
 '''
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 from common.scenarios import test_three_row_scenario
 from common.airport_map_drawer import AirportMapDrawer
 
@@ -15,10 +18,23 @@ from monte_carlo.off_policy_mc_predictor import OffPolicyMCPredictor
 
 from generalized_policy_iteration.value_function_drawer import ValueFunctionDrawer
 from generalized_policy_iteration.policy_evaluator import PolicyEvaluator
+from generalized_policy_iteration.tabular_value_function import TabularValueFunction
 
 from p1.low_level_environment import LowLevelEnvironment
 from p1.low_level_actions import LowLevelActionType
 from p1.low_level_policy_drawer import LowLevelPolicyDrawer
+
+def matrix_difference_absolute(matrix_1: np.ndarray, matrix_2: np.ndarray) -> float:
+    return np.linalg.norm(np.nan_to_num(matrix_1) - np.nan_to_num(matrix_2))
+
+def value_function_to_numpy(value_function: TabularValueFunction, width: int,
+                            height: int) -> np.ndarray:
+    return np.array(
+        [
+            [value_function.value(x, y) for x in range(width)]
+            for y in range(height)
+        ]
+    )
 
 if __name__ == '__main__':
     airport_map, drawer_height = test_three_row_scenario()
@@ -34,10 +50,14 @@ if __name__ == '__main__':
     # Policy evaluation algorithm
     pe = PolicyEvaluator(env)
     pe.set_policy(pi)
-    v_pe = ValueFunctionDrawer(pe.value_function(), drawer_height)
+    # v_pe = ValueFunctionDrawer(pe.value_function(), drawer_height)
     pe.evaluate()
-    v_pe.update()
-    v_pe.update()
+    # v_pe.update()
+    # v_pe.update()
+
+    width = env.map().width()
+    height = env.map().height()
+    truth_values = value_function_to_numpy(pe.value_function(), width, height)
 
     # Range of alpha values
     alpha_values = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1]
@@ -45,7 +65,8 @@ if __name__ == '__main__':
     num_values = len(alpha_values)
 
     td_predictors = [None] * num_values
-    td_drawers = [None] * num_values
+    # td_drawers = [None] * num_values
+    td_historical_points = [[] for _ in range(num_values)]
 
     # TD policy predictor
     for i in range (num_values):
@@ -53,15 +74,26 @@ if __name__ == '__main__':
         td_predictors[i].set_experience_replay_buffer_size(64)
         td_predictors[i].set_alpha(alpha_values[i])
         td_predictors[i].set_target_policy(pi)
-        td_drawers[i] = ValueFunctionDrawer(td_predictors[i].value_function(), drawer_height)
+        # td_drawers[i] = ValueFunctionDrawer(td_predictors[i].value_function(), drawer_height)
 
     for e in range(400):
         for i in range(num_values):
             td_predictors[i].evaluate()
-            td_drawers[i].update()
+            values = value_function_to_numpy(td_predictors[i].value_function(), width, height)
+            difference = matrix_difference_absolute(values, truth_values)
 
-    v_pe.save_screenshot("truth_pe.pdf")
+            td_historical_points[i].append(difference)
+            # td_drawers[i].update()
 
+    # v_pe.save_screenshot("truth_pe.pdf")
+
+    # for i in range(num_values):
+    #     td_drawers[i].update()
+    #     td_drawers[i].save_screenshot(f"td-{int(alpha_values[i]*10):03}-pe.pdf")
+
+    plt.title('Episode Count vs Difference to Truth')
     for i in range(num_values):
-        td_drawers[i].update()
-        td_drawers[i].save_screenshot(f"td-{int(alpha_values[i]*10):03}-pe.pdf")
+        plt.plot(range(len(td_historical_points[i])),
+                 td_historical_points[i], label=f'Alpha: {alpha_values[i]}')
+    plt.legend(loc='upper right')
+    plt.show()
