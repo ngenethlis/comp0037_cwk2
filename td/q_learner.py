@@ -53,7 +53,7 @@ class QLearner(TDController):
             new_q = self._Q[x, y, A] + self.alpha() * (R + self.gamma() * max_a - self._Q[x, y, A])
 
             # Update the grid
-            self._update_q_and_policy(coords, a, new_q)
+            self._update_q_and_policy(coords, A, new_q)
 
             # Move to the next step in the episode
             reward = R
