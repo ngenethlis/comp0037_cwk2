@@ -20,16 +20,16 @@ class QLearner(TDController):
         TDController.__init__(self, environment)
 
     def initialize(self):
-               
+
         # Set up experience replay buffer
         TDController.initialize(self)
-        
+
         # Change names to change titles on drawn windows
         self._v.set_name("Q-Learning Expected Value Function")
         self._pi.set_name("Q-Learning Greedy Policy")
-            
+
     def _update_action_and_value_functions_from_episode(self, episode):
-        
+
         # This calls a method in the TDController which will update the
         # Q value estimate in the base class and will update
         # the greedy policy and estimated state value function
