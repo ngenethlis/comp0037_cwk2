@@ -41,25 +41,24 @@ class QLearner(TDController):
         a = episode.action(0)
 
         for step_count in range(1, episode.number_of_steps()):
+            s_prime = episode.state(step_count)
+            coords_prime = s_prime.coords()
+            reward = episode.reward(step_count)
+
             # Q2x: Apply Q-learning to compute / update new_q
-            x, y = coords
-            A = self._pi.action(x, y)
-            self._environment.reset(s)
-            S_prime, R, _, _, _ = self._environment.step(A)
-
-            x_prime, y_prime = S_prime.coords()
-
-            max_a = max(self._Q[x_prime, y_prime])
-            new_q = self._Q[x, y, A] + self.alpha() * (R + self.gamma() * max_a - self._Q[x, y, A])
+            max_a = max(self._Q[coords_prime[0], coords_prime[1]])
+            new_q = self._Q[coords[0], coords[1], a] + self.alpha() * (
+                reward + self.gamma() * max_a - self._Q[coords[0], coords[1], a])
 
             # Update the grid
-            self._update_q_and_policy(coords, A, new_q)
+            self._update_q_and_policy(coords, a, new_q)
 
             # Move to the next step in the episode
-            reward = R
-            s = S_prime
+            reward = episode.reward(step_count)
+            s =  episode.state(step_count)
             coords = s.coords()
-            a = A
+            a = episode.action(step_count)
 
-            if S_prime.is_terminal():
-                break
+        # Final value
+        new_q = reward
+        self._update_q_and_policy(coords, a, new_q)
