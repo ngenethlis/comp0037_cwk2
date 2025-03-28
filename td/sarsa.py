@@ -34,30 +34,26 @@ class SARSA(TDController):
         # Handle everything up to the last state transition to the terminal state
         s = episode.state(0)
         coords = s.coords()
-        x, y = coords
         reward = episode.reward(0)
-        a = self._pi.action(x, y)
+        a = episode.action(0)
 
         for step_count in range(1, episode.number_of_steps()):
+            s_prime = episode.state(step_count)
+            coords_prime = s_prime.coords()
+            a_prime = episode.action(step_count)
+            reward = episode.reward(step_count)
+
             # Q2x: Apply SARSA to compute / update new_q
-            x, y = coords
-            A = a
-            self._environment.reset(s)
-            S_prime, R, _, _, _ = self._environment.step(A)
+            new_q = self._Q[coords[0], coords[1], a] + self.alpha() * (reward + self.gamma() * self._Q[coords_prime[0], coords_prime[1], a_prime] - self._Q[coords[0], coords[1], a])
 
-            x_prime, y_prime = S_prime.coords()
-            A_prime = self._pi.action(x_prime, y_prime)
-
-            new_q = self._Q[x, y, A] + self.alpha() * (R + self.gamma() * self._Q[x_prime, y_prime, A_prime] - self._Q[x, y, A])
-           
             # Update the grid
-            self._update_q_and_policy(coords, A, new_q)
+            self._update_q_and_policy(coords, a, new_q)
 
             # Move to the next step in the episode
-            reward = R
-            s = S_prime
+            s =  episode.state(step_count)
             coords = s.coords()
-            a = A_prime
+            a = episode.action(step_count)
 
-            if S_prime.is_terminal():
-                break
+        # Final value
+        new_q = reward
+        self._update_q_and_policy(coords, a, new_q)
