@@ -63,9 +63,3 @@ class QLearner(TDController):
 
             if S_prime.is_terminal():
                 break
-
-        # Final value
-        x, y = coords
-        max_a = max(self._Q[x, y])
-        new_q = self._Q[x, y, a] + self.alpha() * (reward + self.gamma() * max_a - self._Q[x, y, a])
-        self._update_q_and_policy(coords, a, new_q)
