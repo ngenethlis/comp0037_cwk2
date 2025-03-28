@@ -6,35 +6,15 @@ Created on 7 Mar 2023
 @author: steam
 '''
 
-import numpy as np
 import matplotlib.pyplot as plt
 
+from analysis_utilities import (matrix_difference_absolute,
+                                value_function_to_numpy)
 from common.scenarios import test_three_row_scenario
-from common.airport_map_drawer import AirportMapDrawer
-
-from td.td_policy_predictor import TDPolicyPredictor
-from monte_carlo.on_policy_mc_predictor import OnPolicyMCPredictor
-from monte_carlo.off_policy_mc_predictor import OffPolicyMCPredictor
-
-from generalized_policy_iteration.value_function_drawer import ValueFunctionDrawer
 from generalized_policy_iteration.policy_evaluator import PolicyEvaluator
-from generalized_policy_iteration.tabular_value_function import TabularValueFunction
-
-from p1.low_level_environment import LowLevelEnvironment
 from p1.low_level_actions import LowLevelActionType
-from p1.low_level_policy_drawer import LowLevelPolicyDrawer
-
-def matrix_difference_absolute(matrix_1: np.ndarray, matrix_2: np.ndarray) -> float:
-    return np.linalg.norm(np.nan_to_num(matrix_1) - np.nan_to_num(matrix_2))
-
-def value_function_to_numpy(value_function: TabularValueFunction, width: int,
-                            height: int) -> np.ndarray:
-    return np.array(
-        [
-            [value_function.value(x, y) for x in range(width)]
-            for y in range(height)
-        ]
-    )
+from p1.low_level_environment import LowLevelEnvironment
+from td.td_policy_predictor import TDPolicyPredictor
 
 if __name__ == '__main__':
     airport_map, drawer_height = test_three_row_scenario()
