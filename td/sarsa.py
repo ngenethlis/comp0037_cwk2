@@ -34,8 +34,9 @@ class SARSA(TDController):
         # Handle everything up to the last state transition to the terminal state
         s = episode.state(0)
         coords = s.coords()
+        x, y = coords
         reward = episode.reward(0)
-        a = episode.action(0)
+        a = self._pi.action(x, y)
 
         for step_count in range(1, episode.number_of_steps()):
             # Q2x: Apply SARSA to compute / update new_q
@@ -45,7 +46,7 @@ class SARSA(TDController):
             S_prime, R, _, _, _ = self._environment.step(A)
 
             x_prime, y_prime = S_prime.coords()
-            A_prime = self._pi.action(x, y)
+            A_prime = self._pi.action(x_prime, y_prime)
 
             new_q = self._Q[x, y, A] + self.alpha() * (R + self.gamma() * self._Q[x_prime, y_prime, A_prime] - self._Q[x, y, A])
            
