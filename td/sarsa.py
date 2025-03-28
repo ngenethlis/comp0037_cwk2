@@ -60,8 +60,3 @@ class SARSA(TDController):
 
             if S_prime.is_terminal():
                 break
-
-        # Final value
-        new_q = reward
-        self._update_q_and_policy(coords, a, new_q)
-
