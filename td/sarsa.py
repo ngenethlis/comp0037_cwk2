@@ -40,7 +40,7 @@ class SARSA(TDController):
         for step_count in range(1, episode.number_of_steps()):
             # Q2x: Apply SARSA to compute / update new_q
             x, y = coords
-            A = self._pi.action(x, y)
+            A = a
             self._environment.reset(s)
             S_prime, R, _, _, _ = self._environment.step(A)
 
