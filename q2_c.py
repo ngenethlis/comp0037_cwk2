@@ -55,3 +55,5 @@ if __name__ == '__main__':
         pi.set_epsilon(1/math.sqrt(1+0.25*i))
         print(f"epsilon={1/math.sqrt(1+i)};alpha={policy_learner.alpha()}")
         
+    value_function_drawer.save_screenshot("2_c Value.pdf")
+    greedy_optimal_policy_drawer.save_screenshot("2_c Policy.pdf")
