@@ -95,13 +95,68 @@ def get_optimal_policy( # pylint: disable=too-many-locals
     return policy
 
 
-def policy_to_numpy(policy: LowLevelPolicy) -> np.ndarray[int, int]:
+def policy_to_numpy(policy: LowLevelPolicy) -> np.ndarray[np.ndarray[int]]:
     """
     Turns a policy into a 2D array of actions
     """
     array = np.zeros((policy.width(), policy.height()))
 
     for x, y in itertools.product(range(policy.width()), range(policy.height())):
-        array[x, y] = policy.action(x, y)
+        array[x, y] = policy.greedy_optimal_action(x, y)
+
+    return array
+
+def policy_to_comparable(policy: LowLevelPolicy) -> np.ndarray[np.ndarray[int]]:
+    """
+    Every cell that we visit no matter the action has the same "cost", so we need
+    to figure how much "cost" is incurred until we reach a None
+    """
+    width, height = policy.width(), policy.height()
+    array = np.zeros((width, height))
+    policy = policy_to_numpy(policy)
+
+    # for every item in the state space, follow the policy until we reach a terminal
+    for x, y in itertools.product(range(width), range(height)):
+        accumulator = 0
+
+        inner_x, inner_y = x, y
+        visited = {(x, y)}
+        action = policy[inner_x, inner_y]
+
+        while action not in [LowLevelActionType.TERMINATE, LowLevelActionType.NONE]:
+            accumulator += 1
+
+            match action:
+                case LowLevelActionType.MOVE_RIGHT:
+                    inner_x += 1
+                case LowLevelActionType.MOVE_LEFT:
+                    inner_x -= 1
+                case LowLevelActionType.MOVE_UP:
+                    inner_y += 1
+                case LowLevelActionType.MOVE_UP_RIGHT:
+                    inner_x += 1
+                    inner_y += 1
+                case LowLevelActionType.MOVE_UP_LEFT:
+                    inner_x -= 1
+                    inner_y += 1
+                case LowLevelActionType.MOVE_DOWN:
+                    inner_y -= 1
+                case LowLevelActionType.MOVE_DOWN_LEFT:
+                    inner_x -= 1
+                    inner_y -= 1
+                case LowLevelActionType.MOVE_DOWN_RIGHT:
+                    inner_x += 1
+                    inner_y -= 1
+
+            if not (0 <= inner_x < width and 0 <= inner_y < height):
+                break
+
+            if (inner_x, inner_y) in visited:
+                break
+
+            action = policy[inner_x, inner_y]
+            visited.add((inner_x, inner_y))
+
+        array[x, y] = accumulator
 
     return array
