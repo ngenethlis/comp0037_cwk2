@@ -51,6 +51,7 @@ class TDController(TDAlgorithmBase):
         episode_sampler = EpisodeSampler(self._environment)
 
         timings = []
+        timings2 = []
         
         for episode in range(self._number_of_episodes):
 
@@ -71,6 +72,7 @@ class TDController(TDAlgorithmBase):
             self._update_action_and_value_functions_from_episode(new_episode)
             took = monotonic_ns() - now
             timings.append(took)
+            timings2.append((took, new_episode.number_of_steps()))
             
             # Pick several randomly from the experience replay buffer and update with those as well
             for _ in range(min(self._replays_per_update, self._stored_experiences)):
@@ -82,7 +84,7 @@ class TDController(TDAlgorithmBase):
                 
             self._add_episode_to_experience_replay_buffer(new_episode)
 
-        return timings
+        return timings, timings2
         
     def _update_action_and_value_functions_from_episode(self, episode):
         raise NotImplementedError()

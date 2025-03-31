@@ -52,10 +52,13 @@ if __name__ == '__main__':
     greedy_optimal_policy_drawer = LowLevelPolicyDrawer(policy_learner.policy(), drawer_height)
 
     timings = []
+    timings2 = []
 
     for i in range(100):
         print(i)
-        timings += policy_learner.find_policy()
+        lt, lt2 = policy_learner.find_policy()
+        timings += lt
+        timings2 += lt2
 
         value_function_drawer.update()
         greedy_optimal_policy_drawer.update()
@@ -68,6 +71,15 @@ if __name__ == '__main__':
     plt.plot(range(len(timings)), timings)
     plt.title("Cumulative Time Taken Per Episode")
     plt.xlabel("Episode Number")
+    plt.ylabel("Cumulative Time Taken (ns)")
+    plt.show()
+
+    timings2 = sorted(timings2, key=lambda x: x[1])
+    y = [a[0] for a in timings2]
+    x = [a[1] for a in timings2]
+    plt.plot(x, y)
+    plt.title("Time Taken Against Number of Steps")
+    plt.xlabel("Number of Steps")
     plt.ylabel("Time Taken (ns)")
     plt.show()
 
