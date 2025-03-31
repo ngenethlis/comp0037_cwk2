@@ -41,7 +41,7 @@ class SARSA(TDController):
             s_prime = episode.state(step_count)
             coords_prime = s_prime.coords()
             a_prime = episode.action(step_count)
-            reward = episode.reward(step_count)
+            reward = episode.reward(step_count - 1)
 
             # Q2x: Apply SARSA to compute / update new_q
             new_q = self._Q[coords[0], coords[1], a] + self.alpha() * (reward + self.gamma() * self._Q[coords_prime[0], coords_prime[1], a_prime] - self._Q[coords[0], coords[1], a])
