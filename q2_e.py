@@ -8,7 +8,6 @@ Created on 9 Mar 2023
 
 import math
 
-from time import monotonic_ns
 import matplotlib.pyplot as plt
 
 from common.scenarios import corridor_scenario
@@ -51,22 +50,17 @@ if __name__ == '__main__':
     greedy_optimal_policy_drawer = LowLevelPolicyDrawer(policy_learner.policy(), drawer_height)
 
     timings = []
-    now = monotonic_ns()
-    
-    for i in range(40):
+
+    for i in range(100):
         print(i)
-
-        now = monotonic_ns()
-        policy_learner.find_policy()
-        timings.append(monotonic_ns() - now)
-
+        timings += policy_learner.find_policy()
         value_function_drawer.update()
         greedy_optimal_policy_drawer.update()
         pi.set_epsilon(1/math.sqrt(1+0.25*i))
 
         print(f"epsilon={1/math.sqrt(1+i)};alpha={policy_learner.alpha()}")
 
-    plt.plot(range(40), timings)
+    plt.plot(range(len(timings)), timings)
     plt.title("Time Taken Per Episode")
     plt.xlabel("Episode Number")
     plt.ylabel("Time Taken (ns)")
