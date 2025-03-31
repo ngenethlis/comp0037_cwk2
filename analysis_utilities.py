@@ -17,11 +17,11 @@ from p1.low_level_policy import LowLevelPolicy
 def matrix_difference_absolute(matrix_1: np.ndarray, matrix_2: np.ndarray) -> float:
     """
     Gets the difference between two matrices, and then gets the matrix norm of the result.
-    Essentially: abs(matrix_1 - matrix_2).
+    Essentially: abs(abs(matrix_1) - abs(matrix_2)).
 
     Also does additional work to turn NaN values into 0, if they exist.
     """
-    return np.linalg.norm(np.nan_to_num(matrix_1) - np.nan_to_num(matrix_2))
+    return np.linalg.norm(np.abs(np.nan_to_num(matrix_1)) - np.abs(np.nan_to_num(matrix_2)))
 
 def matrix_if_differ_difference_absolute(
         matrix_1: np.ndarray, matrix_2: np.ndarray, float_epsilon: float = 10e-8

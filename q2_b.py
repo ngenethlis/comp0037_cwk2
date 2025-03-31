@@ -99,10 +99,14 @@ if __name__ == '__main__':
 
     value_function_drawer.save_screenshot("2_b Value.pdf")
     greedy_optimal_policy_drawer.save_screenshot("2_b Policy.pdf")
+
+    plt.xlabel('Iterations')
+    plt.ylabel('Difference')
     plt.title('Policy Reward vs Ideal Policy Reward')
     plt.plot(list(range(len(error_to_ideal))), error_to_ideal)
     plt.show()
 
+    plt.ylabel('Reward')
     plt.title('Total Reward Curve')
     plt.plot(list(range(len(sum_rewards))), sum_rewards)
     plt.show()
