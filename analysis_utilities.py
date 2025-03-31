@@ -6,7 +6,7 @@ import itertools
 
 import numpy as np
 
-from common.airport_map import MapCell
+from common.airport_map import MapCell, AirportMap
 from generalized_policy_iteration.tabular_value_function import \
     TabularValueFunction
 from p1.low_level_actions import LowLevelActionType
@@ -106,7 +106,7 @@ def policy_to_numpy(policy: LowLevelPolicy) -> np.ndarray[np.ndarray[int]]:
 
     return array
 
-def policy_to_comparable(policy: LowLevelPolicy) -> np.ndarray[np.ndarray[int]]:
+def policy_to_comparable(map: AirportMap, policy: LowLevelPolicy) -> np.ndarray[np.ndarray[int]]:
     """
     Every cell that we visit no matter the action has the same "cost", so we need
     to figure how much "cost" is incurred until we reach a None
@@ -124,7 +124,7 @@ def policy_to_comparable(policy: LowLevelPolicy) -> np.ndarray[np.ndarray[int]]:
         action = policy[inner_x, inner_y]
 
         while action not in [LowLevelActionType.TERMINATE, LowLevelActionType.NONE]:
-            accumulator += 1
+            curr_x, curr_y = inner_x, inner_y
 
             match action:
                 case LowLevelActionType.MOVE_RIGHT:
@@ -147,6 +147,10 @@ def policy_to_comparable(policy: LowLevelPolicy) -> np.ndarray[np.ndarray[int]]:
                 case LowLevelActionType.MOVE_DOWN_RIGHT:
                     inner_x += 1
                     inner_y -= 1
+                case _:
+                    raise RuntimeError("Impossible case")
+
+            accumulator += map.compute_transition_cost((curr_x, curr_y), (inner_x, inner_y))
 
             if not (0 <= inner_x < width and 0 <= inner_y < height):
                 break

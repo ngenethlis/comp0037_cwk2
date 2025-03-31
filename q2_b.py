@@ -16,6 +16,7 @@ from analysis_utilities import (get_optimal_policy, matrix_difference_absolute,
 from common.airport_map_drawer import AirportMapDrawer
 from common.scenarios import (test_2x2_scenario, test_3x3_scenario,
                               test_three_row_scenario, test_two_row_scenario)
+from generalized_policy_iteration.policy_iterator import PolicyIterator
 from generalized_policy_iteration.policy_evaluator import PolicyEvaluator
 from generalized_policy_iteration.value_function_drawer import \
     ValueFunctionDrawer
@@ -37,12 +38,19 @@ if __name__ == '__main__':
     # Create the environment
     env = LowLevelEnvironment(airport_map)
 
+    # Generate ideal policy
+    ideal_policy = env.initial_policy() # make a copy
+    ideal_policy.set_action(0, 1, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(1, 1, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(14, 1, LowLevelActionType.MOVE_DOWN)
+    ideal_policy.set_action(14, 2, LowLevelActionType.MOVE_DOWN)
+    ideal_policy.set_action(13, 1, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(13, 2, LowLevelActionType.MOVE_DOWN_RIGHT)
+
     # Extract the initial policy. This is e-greedy
     pi = env.initial_policy()
-    pi.set_action(14, 1, LowLevelActionType.MOVE_DOWN)
-    pi.set_action(14, 2, LowLevelActionType.MOVE_DOWN)
 
-    ideal_policy_array = policy_to_comparable(pi)
+    ideal_policy_array = policy_to_comparable(airport_map, ideal_policy)
 
     # Select the controller
     policy_learner = QLearner(env)
@@ -67,14 +75,14 @@ if __name__ == '__main__':
 
     error_to_ideal = []
 
-    for i in range(10000):
+    for i in range(40):
         policy_learner.find_policy()
         value_function_drawer.update()
         greedy_optimal_policy_drawer.update()
         pi.set_epsilon(1/math.sqrt(1+0.25*i))
-        print(f"epsilon={1/math.sqrt(1+i)};alpha={policy_learner.alpha()}")
+        print(f"epsilon={1/math.sqrt(1+0.25*i)};alpha={policy_learner.alpha()}")
 
-        policy_array = policy_to_comparable(policy_learner.policy())
+        policy_array = policy_to_comparable(airport_map, policy_learner.policy())
         difference_score = matrix_difference_absolute(policy_array, ideal_policy_array)
         error_to_ideal.append(difference_score)
 
