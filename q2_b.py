@@ -17,8 +17,6 @@ from analysis_utilities import (get_optimal_policy, matrix_difference_absolute,
 from common.airport_map_drawer import AirportMapDrawer
 from common.scenarios import (test_2x2_scenario, test_3x3_scenario,
                               test_three_row_scenario, test_two_row_scenario)
-from generalized_policy_iteration.policy_iterator import PolicyIterator
-from generalized_policy_iteration.policy_evaluator import PolicyEvaluator
 from generalized_policy_iteration.value_function_drawer import \
     ValueFunctionDrawer
 from p1.low_level_actions import LowLevelActionType
