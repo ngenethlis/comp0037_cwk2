@@ -9,6 +9,7 @@ Created on 9 Mar 2023
 import math
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from analysis_utilities import (get_optimal_policy, matrix_difference_absolute,
                                 matrix_if_differ_difference_absolute,
@@ -46,6 +47,7 @@ if __name__ == '__main__':
     ideal_policy.set_action(14, 2, LowLevelActionType.MOVE_DOWN)
     ideal_policy.set_action(13, 1, LowLevelActionType.MOVE_DOWN_RIGHT)
     ideal_policy.set_action(13, 2, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(12, 2, LowLevelActionType.MOVE_DOWN_RIGHT)
 
     # Extract the initial policy. This is e-greedy
     pi = env.initial_policy()
@@ -73,9 +75,11 @@ if __name__ == '__main__':
     value_function_drawer = ValueFunctionDrawer(policy_learner.value_function(), drawer_height)
     greedy_optimal_policy_drawer = LowLevelPolicyDrawer(policy_learner.policy(), drawer_height)
 
+    sum_rewards = []
     error_to_ideal = []
+    ideal_achieved = 0
 
-    for i in range(40):
+    for i in range(10000):
         policy_learner.find_policy()
         value_function_drawer.update()
         greedy_optimal_policy_drawer.update()
@@ -83,9 +87,22 @@ if __name__ == '__main__':
         print(f"epsilon={1/math.sqrt(1+0.25*i)};alpha={policy_learner.alpha()}")
 
         policy_array = policy_to_comparable(airport_map, policy_learner.policy())
+        sum_rewards.append(np.concatenate(policy_array).sum())
         difference_score = matrix_difference_absolute(policy_array, ideal_policy_array)
         error_to_ideal.append(difference_score)
 
-    plt.title('Policy to Error')
+        if difference_score < 1.0:
+            ideal_achieved += 1
+            if ideal_achieved == 10:
+                print(f'Terminated after {i} iterations')
+                break
+
+    value_function_drawer.save_screenshot("2_b Value.pdf")
+    greedy_optimal_policy_drawer.save_screenshot("2_b Policy.pdf")
+    plt.title('Policy Reward vs Ideal Policy Reward')
     plt.plot(list(range(len(error_to_ideal))), error_to_ideal)
+    plt.show()
+
+    plt.title('Total Reward Curve')
+    plt.plot(list(range(len(sum_rewards))), sum_rewards)
     plt.show()
