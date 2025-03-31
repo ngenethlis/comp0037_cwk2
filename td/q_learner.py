@@ -43,7 +43,7 @@ class QLearner(TDController):
         for step_count in range(1, episode.number_of_steps()):
             s_prime = episode.state(step_count)
             coords_prime = s_prime.coords()
-            reward = episode.reward(step_count)
+            reward = episode.reward(step_count - 1)
 
             # Q2x: Apply Q-learning to compute / update new_q
             max_a = max(self._Q[coords_prime[0], coords_prime[1]])
@@ -58,4 +58,8 @@ class QLearner(TDController):
             s =  episode.state(step_count)
             coords = s.coords()
             a = episode.action(step_count)
+
+        # final value
+        new_q = reward
+        self._update_q_and_policy(coords, a, new_q)
 
