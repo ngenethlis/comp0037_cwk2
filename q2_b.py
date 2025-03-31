@@ -102,9 +102,11 @@ if __name__ == '__main__':
     plt.ylabel('Difference')
     plt.title('Policy Reward vs Ideal Policy Reward')
     plt.plot(list(range(len(error_to_ideal))), error_to_ideal)
-    plt.show()
+    plt.savefig('2_b Reward vs Ideal.pdf')
+    plt.cla();
 
+    plt.xlabel('Iterations')
     plt.ylabel('Reward')
     plt.title('Total Reward Curve')
     plt.plot(list(range(len(sum_rewards))), sum_rewards)
-    plt.show()
+    plt.savefig('2_b Total Reward Curve.pdf')
