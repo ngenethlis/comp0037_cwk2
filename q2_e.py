@@ -8,6 +8,9 @@ Created on 9 Mar 2023
 
 import math
 
+from time import monotonic_ns
+import matplotlib.pyplot as plt
+
 from common.scenarios import corridor_scenario
 
 from common.airport_map_drawer import AirportMapDrawer
@@ -46,12 +49,26 @@ if __name__ == '__main__':
     # The drawers for the state value and the policy
     value_function_drawer = ValueFunctionDrawer(policy_learner.value_function(), drawer_height)    
     greedy_optimal_policy_drawer = LowLevelPolicyDrawer(policy_learner.policy(), drawer_height)
+
+    timings = []
+    now = monotonic_ns()
     
     for i in range(40):
         print(i)
+
+        now = monotonic_ns()
         policy_learner.find_policy()
+        timings.append(monotonic_ns() - now)
+
         value_function_drawer.update()
         greedy_optimal_policy_drawer.update()
         pi.set_epsilon(1/math.sqrt(1+0.25*i))
+
         print(f"epsilon={1/math.sqrt(1+i)};alpha={policy_learner.alpha()}")
-        
+
+    plt.plot(range(40), timings)
+    plt.title("Time Taken Per Episode")
+    plt.xlabel("Episode Number")
+    plt.ylabel("Time Taken (ns)")
+    plt.show()
+
