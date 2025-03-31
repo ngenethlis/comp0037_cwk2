@@ -70,7 +70,7 @@ class TDController(TDAlgorithmBase):
             now = monotonic_ns()
             self._update_action_and_value_functions_from_episode(new_episode)
             took = monotonic_ns() - now
-            timings.append(now)
+            timings.append(took)
             
             # Pick several randomly from the experience replay buffer and update with those as well
             for _ in range(min(self._replays_per_update, self._stored_experiences)):
@@ -78,7 +78,7 @@ class TDController(TDAlgorithmBase):
                 now = monotonic_ns()
                 self._update_action_and_value_functions_from_episode(episode)
                 took = monotonic_ns() - now
-                timings.append(now)
+                timings.append(took)
                 
             self._add_episode_to_experience_replay_buffer(new_episode)
 

@@ -14,6 +14,8 @@ from common.scenarios import corridor_scenario
 
 from common.airport_map_drawer import AirportMapDrawer
 
+from numpy import cumsum
+
 
 from td.q_learner import QLearner
 
@@ -54,14 +56,17 @@ if __name__ == '__main__':
     for i in range(100):
         print(i)
         timings += policy_learner.find_policy()
+
         value_function_drawer.update()
         greedy_optimal_policy_drawer.update()
         pi.set_epsilon(1/math.sqrt(1+0.25*i))
 
         print(f"epsilon={1/math.sqrt(1+i)};alpha={policy_learner.alpha()}")
 
+    timings = cumsum(timings)
+
     plt.plot(range(len(timings)), timings)
-    plt.title("Time Taken Per Episode")
+    plt.title("Cumulative Time Taken Per Episode")
     plt.xlabel("Episode Number")
     plt.ylabel("Time Taken (ns)")
     plt.show()
