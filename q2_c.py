@@ -46,6 +46,8 @@ if __name__ == '__main__':
     # The drawers for the state value and the policy
     value_function_drawer = ValueFunctionDrawer(policy_learner.value_function(), drawer_height)    
     greedy_optimal_policy_drawer = LowLevelPolicyDrawer(policy_learner.policy(), drawer_height)
+
+    value_function_drawer.set_font_size(20)
     
     for i in range(40):
         print(i)
