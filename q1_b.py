@@ -15,7 +15,7 @@ import numpy as np
 
 from analysis_utilities import (get_optimal_policy, matrix_difference_absolute,
                                 matrix_if_differ_difference_absolute,
-                                policy_to_numpy)
+                                policy_to_comparable)
 from common.scenarios import test_three_row_scenario
 from generalized_policy_iteration.policy_evaluator import PolicyEvaluator
 from monte_carlo.off_policy_mc_predictor import OffPolicyMCPredictor
@@ -45,9 +45,19 @@ def work(args: tuple[bool, int]) -> WorkReturnValue:
     pi.set_action(14, 1, LowLevelActionType.MOVE_DOWN)
     pi.set_action(14, 2, LowLevelActionType.MOVE_DOWN)
 
+    # Generate ideal policy
+    ideal_policy = env.initial_policy() # make a copy
+    ideal_policy.set_action(0, 1, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(1, 1, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(14, 1, LowLevelActionType.MOVE_DOWN)
+    ideal_policy.set_action(14, 2, LowLevelActionType.MOVE_DOWN)
+    ideal_policy.set_action(13, 1, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(13, 2, LowLevelActionType.MOVE_DOWN_RIGHT)
+    ideal_policy.set_action(12, 2, LowLevelActionType.MOVE_DOWN_RIGHT)
+
     # Policy evaluation algorithm
     pe = PolicyEvaluator(env)
-    pe.set_policy(pi)
+    pe.set_policy(ideal_policy)
     # v_pe = ValueFunctionDrawer(pe.value_function(), drawer_height)
     pe.evaluate()
     # v_pe.update()
@@ -87,9 +97,9 @@ def work(args: tuple[bool, int]) -> WorkReturnValue:
     # v_mcop.save_screenshot("q1_b_mc-off_pe.pdf")
     # v_mcpp.save_screenshot("q1_b_mc-on_pe.pdf")
 
-    on_policy = policy_to_numpy(get_optimal_policy(mcop.value_function(), env))
-    off_policy = policy_to_numpy(get_optimal_policy(mcpp.value_function(), env))
-    ideal_policy = policy_to_numpy(get_optimal_policy(pe.value_function(), env))
+    on_policy = policy_to_comparable(airport_map, get_optimal_policy(mcpp.value_function(), env))
+    off_policy = policy_to_comparable(airport_map, get_optimal_policy(mcop.value_function(), env))
+    ideal_policy = policy_to_comparable(airport_map, ideal_policy)
 
     mcpp_values = np.array(
         [
@@ -112,8 +122,8 @@ def work(args: tuple[bool, int]) -> WorkReturnValue:
     return WorkReturnValue(
         matrix_difference_absolute(mcpp_values, pe_values),
         matrix_difference_absolute(mcop_values, pe_values),
-        matrix_if_differ_difference_absolute(on_policy, ideal_policy),
-        matrix_if_differ_difference_absolute(off_policy, ideal_policy),
+        matrix_difference_absolute(on_policy, ideal_policy),
+        matrix_difference_absolute(off_policy, ideal_policy),
         first_visit,
         episode_count,
     )
@@ -219,20 +229,25 @@ if __name__ == "__main__":
 
     # Value "Difference"
     xs = list(range(0, MAX_EPISODE_COUNT + 1))
-    plt.plot(xs, ys_on_fv, color="red")
-    plt.plot(xs, ys_on_mv, color="purple")
+    plt.plot(xs, ys_on_fv, color="red", label='On-Policy First Visit')
+    plt.plot(xs, ys_on_mv, color="purple", label='On-Policy Multi Visit')
 
-    plt.plot(xs, ys_off_fv, color="blue")
-    plt.plot(xs, ys_off_mv, color="green")
+    plt.plot(xs, ys_off_fv, color="blue", label='Off-Policy First Visit')
+    plt.plot(xs, ys_off_mv, color="green", label='Off-Policy Multi Visit')
+    plt.legend()
     plt.title("Value Difference")
-    plt.show()
+    plt.savefig('1_b Value Difference.pdf')
+    # plt.show()
 
     # Policy "Difference"
-    plt.plot(xs, ys_on_pol_fv, color="red")
-    plt.plot(xs, ys_on_pol_mv, color="purple")
+    plt.cla()
+    plt.plot(xs, ys_on_pol_fv, color="red", label='On-Policy First Visit')
+    plt.plot(xs, ys_on_pol_mv, color="purple", label='On-Policy Multi Visit')
 
-    plt.plot(xs, ys_off_pol_fv, color="blue")
-    plt.plot(xs, ys_off_pol_mv, color="green")
+    plt.plot(xs, ys_off_pol_fv, color="blue", label='Off-Policy First-Visit')
+    plt.plot(xs, ys_off_pol_mv, color="green", label='Off-Policy Multi-Visit')
+    plt.legend()
     plt.title("Policy Difference")
-    plt.show()
-    print(results)
+    plt.savefig('1_b Policy Difference.pdf')
+    # plt.show()
+    # print(results)
