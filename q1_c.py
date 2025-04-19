@@ -114,7 +114,7 @@ if __name__ == '__main__':
                 # Compare current learned policy to ideal
                 learned_policy = policy_to_comparable(
                     airport_map,
-                    get_optimal_policy(mc_predictors[i], env)
+                    get_optimal_policy(mc_predictors[i].value_function(), env)
                 )
 
                 diff = matrix_difference_absolute(ideal_policy, learned_policy)
