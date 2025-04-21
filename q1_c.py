@@ -42,26 +42,26 @@ if __name__ == '__main__':
     pi = env.initial_policy()
     pi.set_epsilon(0)
     pi.set_action(14, 1, LowLevelActionType.MOVE_DOWN)
-    pi.set_action(14, 2, LowLevelActionType.MOVE_DOWN)  
-    
+    pi.set_action(14, 2, LowLevelActionType.MOVE_DOWN)
+
     # Policy evaluation algorithm
     pe = PolicyEvaluator(env)
     pe.set_policy(pi)
-    v_pe = ValueFunctionDrawer(pe.value_function(), drawer_height)  
+    v_pe = ValueFunctionDrawer(pe.value_function(), drawer_height)
     pe.evaluate()
     v_pe.update()
     # Calling update a second time clears the "just changed" flag
     # which means all the digits will be rendered in black
-    v_pe.update()  
-    
+    v_pe.update()
+
     # Off policy MC predictors
-    
+
     #epsilon_b_values = [0.1, 0.2, 0.5, 1.0]
-    
+
     step = 0.01
     epsilon_b_values = [x*step for x in range(int(1/step))]
     num_values = len(epsilon_b_values)
-    
+
     mc_predictors = [None] * num_values
     mc_drawers = [None] * num_values
 
@@ -78,11 +78,11 @@ if __name__ == '__main__':
         mc_predictors[i].set_behaviour_policy(b)
         mc_predictors[i].set_experience_replay_buffer_size(64)
         mc_drawers[i] = ValueFunctionDrawer(mc_predictors[i].value_function(), drawer_height)
-        
-   
+
+
 
     max_episodes = 500
-    
+
 
     # Evaluate target policy once using PolicyEvaluator
     pe = PolicyEvaluator(env)
@@ -130,7 +130,7 @@ if __name__ == '__main__':
                 converged[i] = True
                 episodes_to_converge[i] = None
          # Plot the result
-        
+
     print("\n=== Convergence Summary ===")
     for i, eps in enumerate(epsilon_b_values):
         result = (
