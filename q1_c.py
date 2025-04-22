@@ -28,7 +28,7 @@ from p1.low_level_policy_drawer import LowLevelPolicyDrawer
 
 # if the policy differs from the ideal by this much, we accept anyway
 POLICY_THRESHOLD = 5
-MAXIMUM_EPISODE_COUNT = 50_000
+MAXIMUM_EPISODE_COUNT = 100_000
 # MAXIMUM_EPISODE_COUNT = 100
 
 def work(input_tuple: tuple[OffPolicyMCPredictor, AirportMap, LowLevelEnvironment, np.ndarray[np.ndarray[int]]]) -> tuple[OffPolicyMCPredictor, int]:
